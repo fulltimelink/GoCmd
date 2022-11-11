@@ -74,6 +74,7 @@ func initGoCmd(cmd string, opts ...Option) (*exec.Cmd, error) {
 	applyOptions(&gcmd, opts)
 	if nil != gcmd.args {
 		gcmd.cmd = exec.Command(cmd, gcmd.args...)
+		applyOptions(&gcmd, opts)
 	}
 	return gcmd.cmd, nil
 }
