@@ -1,6 +1,7 @@
 package GoCmd
 
 import (
+	"errors"
 	"fmt"
 	"io"
 	"os"
@@ -13,6 +14,8 @@ type goCmd struct {
 }
 
 type Option func(*goCmd)
+
+var CommandNotFoundErr = errors.New("command not found")
 
 func WithStdin(stdin io.Reader) Option {
 	return func(c *goCmd) {
@@ -60,7 +63,7 @@ func applyOptions(cmd *goCmd, opts []Option) {
 func initGoCmd(cmd string, opts ...Option) (*exec.Cmd, error) {
 	_, err := exec.LookPath(cmd)
 	if nil != err {
-		return nil, err
+		return nil, CommandNotFoundErr
 	}
 	command := exec.Command(cmd)
 
@@ -76,6 +79,10 @@ func initGoCmd(cmd string, opts ...Option) (*exec.Cmd, error) {
 }
 
 // 执行命令
-func RunCommand(cmd string, args []string, opts ...Option) error {
-	return nil
+func RunCommand(cmd string, opts ...Option) error {
+	command, err := initGoCmd(cmd, opts...)
+	if nil != err {
+		return err
+	}
+	return command.Run()
 }
